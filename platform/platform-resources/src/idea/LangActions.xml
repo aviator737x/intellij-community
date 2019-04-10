@@ -74,6 +74,8 @@
       -->
     </action>
 
+    <group id="NewProjectOrModuleGroup">
+    </group>
 
     <group id="PrintExportGroup">
       <separator/>
@@ -104,6 +106,10 @@
       <add-to-group group-id="CutCopyPasteGroup" anchor="after" relative-to-action="CopyPaths"/>
       <add-to-group group-id="EditorTabPopupMenu" anchor="after" relative-to-action="CopyPaths"/>
       <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="$Copy"/>
+    </action>
+
+    <action id="CopyTBXReference" class="com.intellij.ide.actions.CopyTBXReferenceAction" >
+      <add-to-group group-id="CutCopyPasteGroup" anchor="after" relative-to-action="CopyReference"/>
     </action>
 
     <action id="CopyAsRichText" class="com.intellij.openapi.editor.richcopy.CopyAsRichTextAction">
@@ -416,7 +422,6 @@
 
     <group id="ToolbarRunGroup">
       <separator/>
-      <reference ref="RunAnything"/>
       <reference ref="RunConfiguration"/>
       <reference ref="RunnerActions"/>
       <reference ref="Stop"/>
@@ -432,6 +437,7 @@
       <reference id="NavBarToolBarOthers"/>
       <separator/>
       <reference ref="SearchEverywhere"/>
+      <reference ref="RunAnything"/>
     </group>
 
     <group id="Bookmarks" text="Bookmarks">
@@ -680,6 +686,8 @@
       <reference ref="AddToFavorites"/>
       <separator/>
       <reference ref="RunContextGroup"/>
+      <separator/>
+      <reference ref="ExportToTextFile"/>
     </group>
 
     <action id="NewElementSamePlace" class="com.intellij.ide.actions.NewElementSamePlaceAction"/>

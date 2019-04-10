@@ -18,6 +18,7 @@ public class GetArrayCommand extends GetFrameCommand {
   private final int myColumns;
   private final String myFormat;
   private ArrayChunk myChunk;
+  private final int mySlice;
 
   public GetArrayCommand(final RemoteDebugger debugger, final String threadId, final String frameId, PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format) {
     super(debugger, GET_ARRAY, threadId, frameId);
@@ -28,6 +29,19 @@ public class GetArrayCommand extends GetFrameCommand {
     myColumns = cols;
     myFormat = format;
     myParent = var;
+    mySlice = 0;
+  }
+
+  public GetArrayCommand(final RemoteDebugger debugger, final String threadId, final String frameId, PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format, int slice) {
+    super(debugger, GET_ARRAY, threadId, frameId);
+    myVariableName = GetVariableCommand.composeName(var);
+    myRowOffset = rowOffset;
+    myColOffset = colOffset;
+    myRows = rows;
+    myColumns = cols;
+    myFormat = format;
+    myParent = var;
+    mySlice = slice;
   }
 
   @Override
@@ -37,6 +51,8 @@ public class GetArrayCommand extends GetFrameCommand {
     payload.add(myRows);
     payload.add(myColumns);
     payload.add(myFormat);
+    payload.add(mySlice);
+
 
     if (myParent.getVariableLocator() != null) {
       payload.add(myParent.getVariableLocator().getThreadId()).add(myParent.getVariableLocator().getPyDBLocation());

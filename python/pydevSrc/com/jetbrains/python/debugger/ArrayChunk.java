@@ -35,6 +35,9 @@ public class ArrayChunk {
   private final Object[][] myData;
   private final List<String> myRowLabels;
   private final List<ColHeader> myColHeaders;
+  private int mySlices;
+  private int slice = 0;
+  private int myDimensions;
 
 
 
@@ -58,6 +61,32 @@ public class ArrayChunk {
     myData = data;
     myRowLabels = labels;
     myColHeaders = headers;
+    mySlices = 0;
+  }
+
+  public ArrayChunk(@NotNull PyDebugValue value,
+                    String slicePresentation,
+                    int rows,
+                    int columns,
+                    String max,
+                    String min,
+                    String format,
+                    String type,
+                    @Nullable Object[][] data, List<String> labels, List<ColHeader> headers,
+                    int slices, int dimensions) {
+    myValue = value;
+    mySlicePresentation = slicePresentation;
+    myRows = rows;
+    myColumns = columns;
+    myMax = max;
+    myMin = min;
+    myFormat = format;
+    myType = type;
+    myData = data;
+    myRowLabels = labels;
+    myColHeaders = headers;
+    mySlices = slices;
+    myDimensions = dimensions;
   }
 
   public PyDebugValue getValue() {
@@ -104,6 +133,14 @@ public class ArrayChunk {
     return myColHeaders;
   }
 
+  public int getSlice() {return slice;}
+
+  public int getSlices() {return mySlices;}
+
+  public void setSlice(int slice) { this.slice = slice;}
+
+  public int getDimensions() {return myDimensions;}
+
   public static class ColHeader
   {
     private final String myLabel;
@@ -140,5 +177,6 @@ public class ArrayChunk {
     public String getMin() {
       return myMin;
     }
+
   }
 }

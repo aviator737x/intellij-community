@@ -47,6 +47,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -65,6 +67,10 @@ public class PyDataViewerPanel extends JPanel {
   private JPanel myMainPanel;
   private JBLabel myErrorLabel;
   @SuppressWarnings("unused") private JBScrollPane myScrollPane;
+  private JButton myGetSliceButton;
+  private JSpinner mySpinner1;
+  private JLabel myLabel;
+  private JTextArea myTextArea1;
   private boolean myColored;
   List<Listener> myListeners;
 
@@ -79,6 +85,12 @@ public class PyDataViewerPanel extends JPanel {
     myColored = PropertiesComponent.getInstance(myProject).getBoolean(PyDataView.COLORED_BY_DEFAULT, true);
     myListeners = new CopyOnWriteArrayList<>();
     setupChangeListener();
+    myGetSliceButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        updateModel((int) mySpinner1.getValue());
+      }
+    });
   }
 
   private void setupChangeListener() {
@@ -99,12 +111,39 @@ public class PyDataViewerPanel extends JPanel {
     });
   }
 
+  private void updateModel(int slice) {
+    AsyncArrayTableModel model = getModel();
+    if (model == null) {
+      return;
+    }
+    model.invalidateCache();
+    updateDebugValue(model, slice);
+    ApplicationManager.getApplication().invokeLater(() -> {
+      if (isShowing()) {
+        model.fireTableDataChanged();
+      }
+    });
+  }
+
   private void updateDebugValue(@NotNull AsyncArrayTableModel model) {
     PyDebugValue oldValue = model.getDebugValue();
     if (!oldValue.isTemporary()) {
       return;
     }
     PyDebugValue newValue = getDebugValue(mySliceTextField.getText());
+    apply(newValue);
+    if (newValue != null) {
+      model.setDebugValue(newValue);
+    }
+  }
+
+  private void updateDebugValue(@NotNull AsyncArrayTableModel model, int slice) {
+    PyDebugValue oldValue = model.getDebugValue();
+    if (!oldValue.isTemporary()) {
+      return;
+    }
+    PyDebugValue newValue = getDebugValue(mySliceTextField.getText());
+    apply(newValue, slice);
     if (newValue != null) {
       model.setDebugValue(newValue);
     }
@@ -176,11 +215,42 @@ public class PyDataViewerPanel extends JPanel {
     ApplicationManager.getApplication().executeOnPooledThread(() -> {
       try {
         ArrayChunk arrayChunk = debugValue.getFrameAccessor().getArrayItems(debugValue, 0, 0, -1, -1, getFormat());
+        if (arrayChunk.getDimensions() < 3) {
+          myGetSliceButton.setVisible(false);
+          mySpinner1.setVisible(false);
+        } else {
+          mySpinner1.setModel(new SpinnerNumberModel(0, 0, arrayChunk.getSlices() - 1, 1));
+          mySpinner1.setVisible(true);
+          myGetSliceButton.setVisible(true);
+        }
         ApplicationManager.getApplication().invokeLater(() -> updateUI(arrayChunk, debugValue, strategy));
       }
       catch (PyDebuggerException e) {
         LOG.error(e);
       }
+    });
+  }
+
+  public void apply(@NotNull PyDebugValue debugValue, int slice) {
+    myErrorLabel.setVisible(false);
+    String type = debugValue.getType();
+    type = "ndarray";
+    DataViewStrategy strategy = DataViewStrategy.getStrategy(type);
+    if (strategy == null) {
+      setError(type + " is not supported");
+      return;
+    }
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
+      ArrayChunk arrayChunk = null;
+      try {
+        arrayChunk = debugValue.getFrameAccessor().getArrayItems(debugValue, 0, 0, -1, -1, getFormat(), slice);
+        ArrayChunk finalArrayChunk = arrayChunk;
+        ApplicationManager.getApplication().invokeLater(() -> updateUI(finalArrayChunk, debugValue, strategy, slice));
+      }
+      catch (PyDebuggerException e) {
+        e.printStackTrace();
+      }
+
     });
   }
 
@@ -196,7 +266,7 @@ public class PyDataViewerPanel extends JPanel {
     UIUtil.invokeLaterIfNeeded(() -> {
       myTable.setModel(model);
       String text = debugValue.getName().equals(debugValue.getTempName()) ? chunk.getSlicePresentation() : debugValue.getName();
-      mySliceTextField.setText(text);
+      mySliceTextField.setText(debugValue.getName());
       if (mySliceTextField.getEditor() != null) {
         mySliceTextField.getCaretModel().moveToOffset(text.length());
       }
@@ -204,6 +274,34 @@ public class PyDataViewerPanel extends JPanel {
         listener.onNameChanged(text);
       }
       myFormatTextField.setText(chunk.getFormat());
+
+      ColoredCellRenderer cellRenderer = strategy.createCellRenderer(Double.MIN_VALUE, Double.MAX_VALUE, chunk);
+      cellRenderer.setColored(myColored);
+      ((AsyncArrayTableModel)myTable.getModel()).fireTableDataChanged();
+      ((AsyncArrayTableModel)myTable.getModel()).fireTableCellUpdated(0, 0);
+      if (myTable.getColumnCount() > 0) {
+        myTable.setDefaultRenderer(myTable.getColumnClass(0), cellRenderer);
+      }
+      myTable.setShowColumns(strategy.showColumnHeader());
+    });
+  }
+
+  private void updateUI(@NotNull ArrayChunk chunk, @NotNull PyDebugValue debugValue, @NotNull DataViewStrategy strategy, @NotNull int slice) {
+    AsyncArrayTableModel model = strategy.createTableModel(chunk.getRows(), chunk.getColumns(), this, debugValue, slice);
+    model.addToCache(chunk);
+
+    UIUtil.invokeLaterIfNeeded(() -> {
+      myTable.setModel(model);
+      String text = debugValue.getName().equals(debugValue.getTempName()) ? chunk.getSlicePresentation() : debugValue.getName();
+      mySliceTextField.setText(debugValue.getName());
+      if (mySliceTextField.getEditor() != null) {
+        mySliceTextField.getCaretModel().moveToOffset(text.length());
+      }
+      for (Listener listener : myListeners) {
+        listener.onNameChanged(text);
+      }
+      myFormatTextField.setText(chunk.getFormat());
+
       ColoredCellRenderer cellRenderer = strategy.createCellRenderer(Double.MIN_VALUE, Double.MAX_VALUE, chunk);
       cellRenderer.setColored(myColored);
       ((AsyncArrayTableModel)myTable.getModel()).fireTableDataChanged();

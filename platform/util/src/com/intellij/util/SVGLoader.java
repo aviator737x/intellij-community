@@ -5,7 +5,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.LazyInitializer.NotNullValue;
 import com.intellij.util.ui.ImageUtil;
-import com.intellij.util.ui.JBUI.ScaleContext;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.JBUIScale.ScaleContext;
 import org.apache.batik.anim.dom.*;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.GVTBuilder;
@@ -31,9 +32,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 
-import static com.intellij.util.ui.JBUI.ScaleType.PIX_SCALE;
+import static com.intellij.util.ui.JBUIScale.DerivedScaleType.PIX_SCALE;
 
 /**
  * @author tav
@@ -64,8 +64,12 @@ public class SVGLoader {
   private final double myOverridenWidth;
   private final double myOverridenHeight;
   private BufferedImage myImage;
+  private MyTranscoder myTranscoder;
 
   private class MyTranscoder extends ImageTranscoder {
+    float myOrigDocWidth;
+    float myOrigDocHeight;
+
     protected MyTranscoder() {
       width = ICON_DEFAULT_SIZE;
       height = ICON_DEFAULT_SIZE;
@@ -73,6 +77,8 @@ public class SVGLoader {
 
     @Override
     protected void setImageSize(float docWidth, float docHeight) {
+      myOrigDocWidth = docWidth;
+      myOrigDocHeight = docHeight;
       super.setImageSize((float)(docWidth * myScale), (float)(docHeight * myScale));
     }
 
@@ -113,10 +119,22 @@ public class SVGLoader {
   }
 
   public static Image load(@Nullable URL url, @NotNull InputStream stream , double scale) throws IOException {
+    return load(url, stream, scale, null);
+  }
+
+  static Image load(@Nullable URL url, @NotNull InputStream stream , double scale, @Nullable Dimension2D docSize /*OUT*/)
+    throws IOException
+  {
     try {
-      return new SVGLoader(url, stream, scale).createImage();
+      SVGLoader loader = new SVGLoader(url, stream, scale);
+      Image img = loader.createImage();
+      if (docSize != null) {
+        docSize.setSize(loader.myTranscoder.myOrigDocWidth, loader.myTranscoder.myOrigDocHeight);
+      }
+      return img;
     }
     catch (TranscoderException ex) {
+      if (docSize != null) docSize.setSize(0, 0);
       throw new IOException(ex);
     }
   }
@@ -150,6 +168,14 @@ public class SVGLoader {
     BufferedImage image = (BufferedImage)load(url, stream, ctx.getScale(PIX_SCALE));
     //noinspection unchecked
     return (T)ImageUtil.ensureHiDPI(image, ctx);
+  }
+
+  /**
+   * @deprecated Use {@link #loadHiDPI(URL, InputStream, ScaleContext)}.
+   */
+  @Deprecated
+  public static <T extends BufferedImage> T loadHiDPI(@Nullable URL url, @NotNull InputStream stream , JBUI.ScaleContext ctx) throws IOException {
+    return loadHiDPI(url, stream, (ScaleContext)ctx);
   }
 
   @SuppressWarnings("SSBasedInspection")
@@ -223,16 +249,16 @@ public class SVGLoader {
   }
 
   private BufferedImage createImage() throws TranscoderException {
-    MyTranscoder transcoder = new MyTranscoder();
+    myTranscoder = new MyTranscoder();
     if (myOverridenWidth != -1) {
-      transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(myOverridenWidth));
+      myTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(myOverridenWidth));
     }
     if (myOverridenHeight != -1) {
-      transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(myOverridenHeight));
+      myTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(myOverridenHeight));
     }
-    transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_MAX_WIDTH, new Float(ICON_MAX_SIZE.get()));
-    transcoder.addTranscodingHint(SVGAbstractTranscoder.KEY_MAX_HEIGHT, new Float(ICON_MAX_SIZE.get()));
-    transcoder.transcode(myTranscoderInput, null);
+    myTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_MAX_WIDTH, new Float(ICON_MAX_SIZE.get()));
+    myTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_MAX_HEIGHT, new Float(ICON_MAX_SIZE.get()));
+    myTranscoder.transcode(myTranscoderInput, null);
     return myImage;
   }
 

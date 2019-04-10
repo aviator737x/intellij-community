@@ -113,6 +113,8 @@ public class MavenRunner implements PersistentStateComponent<MavenRunnerSettings
                           @Nullable final String action,
                           @Nullable ProgressIndicator indicator) {
 
+    if (commands.isEmpty()) return true;
+
     return runBatch(commands, coreSettings, runnerSettings, action, indicator, createConsole(myProject, myProject.getBasePath(), "Maven Batch", 0));
   }
 

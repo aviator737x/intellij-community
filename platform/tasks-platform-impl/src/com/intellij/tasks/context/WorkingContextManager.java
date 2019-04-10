@@ -42,8 +42,7 @@ import java.util.List;
  * @author Dmitry Avdeev
  */
 public class WorkingContextManager {
-
-  private static final Logger LOG = Logger.getInstance("#com.intellij.tasks.context.WorkingContextManager");
+  private static final Logger LOG = Logger.getInstance(WorkingContextManager.class);
   @NonNls private static final String TASKS_FOLDER = "tasks";
 
   private final Project myProject;
@@ -53,11 +52,11 @@ public class WorkingContextManager {
   private static final Comparator<JBZipEntry> ENTRY_COMPARATOR = (o1, o2) -> Long.signum(o2.getTime() - o1.getTime());
   private boolean ENABLED;
 
-  public static WorkingContextManager getInstance(Project project) {
+  public static WorkingContextManager getInstance(@NotNull Project project) {
     return ServiceManager.getService(project, WorkingContextManager.class);
   }
 
-  public WorkingContextManager(Project project) {
+  public WorkingContextManager(@NotNull Project project) {
     myProject = project;
     ENABLED = !ApplicationManager.getApplication().isUnitTestMode();
   }
@@ -68,12 +67,12 @@ public class WorkingContextManager {
     Disposer.register(disposable, ()-> ENABLED = false);
   }
 
-  public void loadContext(Element fromElement) {
-    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensions(myProject)) {
+  public void loadContext(@NotNull Element fromElement) {
+    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensionList()) {
       try {
         Element child = fromElement.getChild(provider.getId());
         if (child != null) {
-          provider.loadContext(child);
+          provider.loadContext(myProject, child);
         }
       }
       catch (InvalidDataException e) {
@@ -83,10 +82,10 @@ public class WorkingContextManager {
   }
 
   public void saveContext(Element toElement) {
-    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensions(myProject)) {
+    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensionList()) {
       try {
         Element child = new Element(provider.getId());
-        provider.saveContext(child);
+        provider.saveContext(myProject, child);
         toElement.addContent(child);
       }
       catch (WriteExternalException e) {
@@ -96,8 +95,8 @@ public class WorkingContextManager {
   }
 
   public void clearContext() {
-    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensions(myProject)) {
-      provider.clearContext();
+    for (WorkingContextProvider provider : WorkingContextProvider.EP_NAME.getExtensionList()) {
+      provider.clearContext(myProject);
     }
   }
 
@@ -113,7 +112,6 @@ public class WorkingContextManager {
   public boolean hasContext(String entryName) {
     return doEntryAction(CONTEXT_ZIP_POSTFIX, entryName, entry -> {});
   }
-
 
   private synchronized void saveContext(@Nullable String entryName, String zipPostfix, @Nullable String comment) {
     if (!ENABLED) return;
@@ -181,6 +179,8 @@ public class WorkingContextManager {
   }
 
   private synchronized boolean doEntryAction(String zipPostfix, String entryName, ThrowableConsumer<JBZipEntry, Exception> action) {
+    if (!ENABLED) return false;
+
     try (JBZipFile archive = getTasksArchive(zipPostfix)) {
       JBZipEntry entry = archive.getEntry(StringUtil.startsWithChar(entryName, '/') ? entryName : "/" + entryName);
       if (entry != null) {
@@ -199,6 +199,7 @@ public class WorkingContextManager {
   }
 
   private synchronized List<ContextInfo> getContextHistory(String zipPostfix) {
+    if (!ENABLED) return Collections.emptyList();
     try (JBZipFile archive = getTasksArchive(zipPostfix)) {
       List<JBZipEntry> entries = archive.getEntries();
       return ContainerUtil.mapNotNull(entries, (NullableFunction<JBZipEntry, ContextInfo>)entry -> entry.getName().startsWith("/context") ? new ContextInfo(entry.getName(), entry.getTime(), entry.getComment()) : null);
@@ -222,6 +223,7 @@ public class WorkingContextManager {
   }
 
   private void removeContext(String name, String postfix) {
+    if (!ENABLED) return;
     try (JBZipFile archive = getTasksArchive(postfix)) {
       JBZipEntry entry = archive.getEntry(name);
       if (entry != null) {
@@ -239,6 +241,7 @@ public class WorkingContextManager {
   }
 
   private synchronized void pack(int max, int delta, String zipPostfix) {
+    if (!ENABLED) return;
     try (JBZipFile archive = getTasksArchive(zipPostfix)) {
       List<JBZipEntry> entries = archive.getEntries();
       if (entries.size() > max + delta) {

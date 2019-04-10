@@ -114,4 +114,7 @@ public interface ProcessDebugger {
   void removeExceptionBreakpoint(ExceptionBreakpointCommandFactory factory);
 
   void suspendOtherThreads(PyThreadInfo thread);
+
+  ArrayChunk loadArrayItems(String id, String id1, PyDebugValue var, int offset, int offset1, int rows, int cols, String format, int slice)
+    throws PyDebuggerException;
 }

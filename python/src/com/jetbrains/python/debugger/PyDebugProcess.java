@@ -828,6 +828,13 @@ public class PyDebugProcess extends XDebugProcess implements IPyDebugProcess, Pr
     return myDebugger.loadArrayItems(frame.getThreadId(), frame.getFrameId(), var, rowOffset, colOffset, rows, cols, format);
   }
 
+  @Override
+  public ArrayChunk getArrayItems(PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format, int slice)
+    throws PyDebuggerException {
+    final PyStackFrame frame = currentFrame();
+    return myDebugger.loadArrayItems(frame.getThreadId(), frame.getFrameId(), var, rowOffset, colOffset, rows, cols, format, slice);
+  }
+
   @Nullable
   public String loadSource(String path) {
     return myDebugger.loadSource(path);

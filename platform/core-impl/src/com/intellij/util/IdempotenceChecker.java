@@ -15,14 +15,17 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class IdempotenceChecker {
   private static final Logger LOG = Logger.getInstance(IdempotenceChecker.class);
   private static final Set<Class> ourReportedValueClasses = Collections.synchronizedSet(ContainerUtil.newTroveSet());
   private static final RecursionGuard ourGuard = RecursionManager.createGuard("IdempotenceChecker");
+  private static final ThreadLocal<Integer> ourRandomCheckNesting = ThreadLocal.withInitial(() -> 0);
   private static final RegistryValue ourRateCheckProperty = Registry.get("platform.random.idempotence.check.rate");
 
   /**
@@ -98,6 +101,9 @@ public class IdempotenceChecker {
       return whichIsField("size", existing, fresh, checkCollectionSizes(((Set)existing).size(), ((Set)fresh).size()));
     }
     if (existing instanceof Map) {
+      if (existing instanceof ConcurrentMap) {
+        return null; // likely to be filled lazily
+      }
       return whichIsField("size", existing, fresh, checkCollectionSizes(((Map)existing).size(), ((Map)fresh).size()));
     }
     if (existing instanceof PsiNamedElement) {
@@ -251,9 +257,16 @@ public class IdempotenceChecker {
   public static <T> void applyForRandomCheck(T data, Object provider, Computable<? extends T> recomputeValue) {
     if (areRandomChecksEnabled() && shouldPerformRandomCheck()) {
       RecursionGuard.StackStamp stamp = ourGuard.markStack();
-      T fresh = recomputeValue.compute();
-      if (stamp.mayCacheNow()) {
-        checkEquivalence(data, fresh, provider.getClass());
+      Integer prevNesting = ourRandomCheckNesting.get();
+      ourRandomCheckNesting.set(prevNesting + 1);
+      try {
+        T fresh = recomputeValue.compute();
+        if (stamp.mayCacheNow()) {
+          checkEquivalence(data, fresh, provider.getClass());
+        }
+      }
+      finally {
+        ourRandomCheckNesting.set(prevNesting);
       }
     }
   }
@@ -262,4 +275,10 @@ public class IdempotenceChecker {
     int rate = ourRateCheckProperty.asInteger();
     return rate > 0 && ThreadLocalRandom.current().nextInt(rate) == 0;
   }
+
+  @TestOnly
+  public static boolean isCurrentThreadInsideRandomCheck() {
+    return ourRandomCheckNesting.get() > 0;
+  }
+
 }

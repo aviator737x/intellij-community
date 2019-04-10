@@ -18,7 +18,7 @@ import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.JBIterable;
 import com.intellij.util.containers.JBTreeTraverser;
-import com.intellij.util.ui.JBUI.ScaleContext;
+import com.intellij.util.ui.JBUIScale.ScaleContext;
 import com.intellij.util.ui.accessibility.ScreenReader;
 import org.intellij.lang.annotations.JdkConstants;
 import org.intellij.lang.annotations.Language;
@@ -492,7 +492,7 @@ public class UIUtil {
   /**
    * Returns whether the JRE-managed HiDPI mode is enabled and the provided system scale context is HiDPI.
    */
-  public static boolean isJreHiDPI(@Nullable ScaleContext ctx) {
+  public static boolean isJreHiDPI(@Nullable JBUIScale.ScaleContext ctx) {
     return isJreHiDPIEnabled() && JBUI.isHiDPI(JBUI.sysScale(ctx));
   }
 
@@ -511,7 +511,7 @@ public class UIUtil {
    * Returns whether the JRE-managed HiDPI mode is enabled.
    * (True for macOS JDK >= 7.10 versions)
    *
-   * @see JBUI.ScaleType
+   * @see JBUIScale.ScaleType
    */
   public static boolean isJreHiDPIEnabled() {
     if (jreHiDPI.get() != null) return jreHiDPI.get();
@@ -3223,6 +3223,12 @@ public class UIUtil {
 
     // With JB Linux JDK the label font comes properly scaled based on Xft.dpi settings.
     Font font = getLabelFont();
+    if (SystemInfo.isMacOSElCapitan) {
+      // Text family should be used for relatively small sizes (<20pt), don't change to Display
+      // see more about SF https://medium.com/@mach/the-secret-of-san-francisco-fonts-4b5295d9a745#.2ndr50z2v
+      font = new Font(".SF NS Text", font.getStyle(), font.getSize());
+    }
+
     if (JBUI.SCALE_VERBOSE) {
       LOG.info(String.format("Label font: %s, %d", font.getFontName(), font.getSize()));
     }

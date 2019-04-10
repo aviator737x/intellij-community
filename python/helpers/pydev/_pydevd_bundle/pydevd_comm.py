@@ -791,6 +791,7 @@ class NetCommandFactory:
 
     def make_evaluate_expression_message(self, seq, payload):
         try:
+            print (NetCommand(CMD_EVALUATE_EXPRESSION, seq, payload))
             return NetCommand(CMD_EVALUATE_EXPRESSION, seq, payload)
         except Exception:
             return self.make_error_message(seq, get_exception_traceback_str())
@@ -1078,7 +1079,7 @@ class InternalGetVariable(InternalThreadCommand):
 # InternalGetArray
 #=======================================================================================================================
 class InternalGetArray(InternalThreadCommand):
-    def __init__(self, seq, roffset, coffset, rows, cols, format, thread_id, frame_id, scope, attrs):
+    def __init__(self, seq, roffset, coffset, rows, cols, format, slice, thread_id, frame_id, scope, attrs):
         self.sequence = seq
         self.thread_id = thread_id
         self.frame_id = frame_id
@@ -1090,12 +1091,13 @@ class InternalGetArray(InternalThreadCommand):
         self.rows = int(rows)
         self.cols = int(cols)
         self.format = format
+        self.slice = slice
 
     def do_it(self, dbg):
         try:
             frame = pydevd_vars.find_frame(self.thread_id, self.frame_id)
             var = pydevd_vars.eval_in_context(self.name, frame.f_globals, frame.f_locals)
-            xml = pydevd_vars.table_like_struct_to_xml(var, self.name, self.roffset, self.coffset, self.rows, self.cols, self.format )
+            xml = pydevd_vars.table_like_struct_to_xml(var, self.name, self.roffset, self.coffset, self.rows, self.cols, self.format, self.slice )
             cmd = dbg.cmd_factory.make_get_array_message(self.sequence, xml)
             dbg.writer.add_command(cmd)
         except:

@@ -4,44 +4,43 @@
 </template>
 
 <script lang="ts">
-  import {Component, Prop, Vue} from "vue-property-decorator"
-  import {ComponentChartManager, ItemChartType, ServiceChartManager, TopHitProviderChart} from "./ItemChartManager"
-  import {DataManager, DataModule, UPDATE_DATE_MUTATION_NAME} from "@/state"
-  import {getModule} from "vuex-module-decorators"
-  import {ChartManager} from "@/core"
+  import {Component, Prop, Watch} from "vue-property-decorator"
+  import {ComponentChartManager, ItemChartManager} from "./ItemChartManager"
+  import {ItemChartType} from "@/charts/ItemChartDescriptor"
+  import {BaseChartComponent} from "@/charts/BaseChartComponent"
 
   @Component
-  export default class ItemChart extends Vue {
+  export default class ItemChart extends BaseChartComponent<ItemChartManager> {
     @Prop(String)
     type!: ItemChartType
 
-    private readonly dataModule = getModule(DataModule, this.$store)
-
-    mounted() {
-      const chartManager = this.createChartManager()
-      this.$store.subscribe(mutation => {
-        if (mutation.type === UPDATE_DATE_MUTATION_NAME) {
-          chartManager.render(new DataManager(this.dataModule))
-        }
-      })
-
-      const data = this.dataModule.data
-      if (data != null) {
-        chartManager.render(new DataManager(this.dataModule))
+    @Watch("type")
+    typeChanged(_type: any, _oldType: any): void {
+      const oldChartManager = this.chartManager
+      if (oldChartManager != null) {
+        oldChartManager.dispose()
+        this.chartManager = null
       }
+
+      this.chartManager = this.createChartManager()
+      this.renderDataIfAvailable()
     }
 
-    private createChartManager(): ChartManager {
+    /** @override */
+    protected createChartManager(): ItemChartManager {
       const chartContainer = this.$refs.chartContainer as HTMLElement
       const type = this.type
       if (type === "components" || type == null) {
         return new ComponentChartManager(chartContainer)
       }
       else if (type === "services") {
-        return new ServiceChartManager(chartContainer)
+        return new ItemChartManager(chartContainer, ["appServices", "projectServices", "moduleServices"])
+      }
+      else if (type === "extensions") {
+        return new ItemChartManager(chartContainer, ["appExtensions", "projectExtensions", "moduleExtensions"])
       }
       else if (type === "topHitProviders") {
-        return new TopHitProviderChart(chartContainer)
+        return new ItemChartManager(chartContainer, ["appOptionsTopHitProviders", "projectOptionsTopHitProviders"])
       }
       else {
         throw new Error(`Unknown chart type: ${type}`)

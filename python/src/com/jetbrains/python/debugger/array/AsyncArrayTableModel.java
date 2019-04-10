@@ -32,6 +32,7 @@ public class AsyncArrayTableModel extends AbstractTableModel {
 
   private final int myRows;
   private final int myColumns;
+  private final int mySlice;
   private final PyDataViewerPanel myDataProvider;
 
 
@@ -48,7 +49,7 @@ public class AsyncArrayTableModel extends AbstractTableModel {
         return ListenableFutureTask.create(() -> {
           ArrayChunk chunk = myDebugValue.getFrameAccessor()
             .getArrayItems(myDebugValue, key.first, key.second, Math.min(CHUNK_ROW_SIZE, getRowCount() - key.first),
-                           Math.min(CHUNK_COL_SIZE, getColumnCount() - key.second), myDataProvider.getFormat());
+                           Math.min(CHUNK_COL_SIZE, getColumnCount() - key.second), myDataProvider.getFormat(), mySlice);
           handleChunkAdded(key.first, key.second, chunk);
           return chunk;
         });
@@ -65,6 +66,20 @@ public class AsyncArrayTableModel extends AbstractTableModel {
     myDataProvider = provider;
     myDebugValue = debugValue;
     myStrategy = strategy;
+    mySlice = 0;
+  }
+
+  public AsyncArrayTableModel(int rows,
+                              int columns,
+                              PyDataViewerPanel provider,
+                              PyDebugValue debugValue,
+                              DataViewStrategy strategy, int slice) {
+    myRows = rows;
+    myColumns = columns;
+    myDataProvider = provider;
+    myDebugValue = debugValue;
+    myStrategy = strategy;
+    mySlice = slice;
   }
 
   @Override

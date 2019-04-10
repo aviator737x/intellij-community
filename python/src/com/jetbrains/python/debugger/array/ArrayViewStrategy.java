@@ -31,6 +31,11 @@ public class ArrayViewStrategy extends DataViewStrategy {
   }
 
   @Override
+  public AsyncArrayTableModel createTableModel(int rowCount, int columnCount, @NotNull PyDataViewerPanel panel, @NotNull PyDebugValue debugValue, int slice) {
+    return new AsyncArrayTableModel(rowCount, columnCount, panel, debugValue, this, slice);
+  }
+
+  @Override
   public ColoredCellRenderer createCellRenderer(double minValue, double maxValue, @NotNull ArrayChunk arrayChunk) {
     ArrayTableCellRenderer renderer = new ArrayTableCellRenderer(minValue, maxValue, arrayChunk.getType());
     renderer.fillColorRange(arrayChunk.getMin(), arrayChunk.getMax());
