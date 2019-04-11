@@ -129,9 +129,10 @@ public abstract class AbstractCommand<T> {
       myDebugger.placeResponse(sequence, null);
     }
 
-    ProtocolFrame frame = new ProtocolFrame(myCommandCode, sequence, getPayload());
-    boolean frameSent = myDebugger.sendFrame(frame);
 
+    ProtocolFrame frame = new ProtocolFrame(myCommandCode, sequence, getPayload());
+
+    boolean frameSent = myDebugger.sendFrame(frame);
     if (processor == null && !isResponseExpected()) return;
 
     if (!frameSent) {

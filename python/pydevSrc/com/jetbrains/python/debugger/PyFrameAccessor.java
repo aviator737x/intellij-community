@@ -52,6 +52,8 @@ public interface PyFrameAccessor {
     return null;
   }
 
+  ArrayChunk getArrayItems(PyDebugValue value, int i, int i1, int i2, int i3, String format, int slice) throws PyDebuggerException;
+
   class PyAsyncValue<T> {
     private final @NotNull PyDebugValue myDebugValue;
     private final @NotNull PyDebugCallback<T> myCallback;

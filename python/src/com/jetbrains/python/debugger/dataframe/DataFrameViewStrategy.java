@@ -18,6 +18,11 @@ public class DataFrameViewStrategy extends DataViewStrategy {
   }
 
   @Override
+  public AsyncArrayTableModel createTableModel(int rowCount, int columnCount, @NotNull PyDataViewerPanel dataProvider, @NotNull PyDebugValue debugValue, int slice) {
+    return new DataFrameTableModel(rowCount, columnCount, dataProvider, debugValue, this);
+  }
+
+  @Override
   public ColoredCellRenderer createCellRenderer(double minValue, double maxValue, @NotNull ArrayChunk arrayChunk) {
     return new DataFrameTableCellRenderer();
   }

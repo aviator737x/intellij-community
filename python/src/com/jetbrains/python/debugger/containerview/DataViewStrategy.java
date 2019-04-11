@@ -35,6 +35,12 @@ public abstract class DataViewStrategy {
 
   public abstract AsyncArrayTableModel createTableModel(int rowCount, int columnCount, @NotNull PyDataViewerPanel panel, @NotNull PyDebugValue debugValue);
 
+  public abstract AsyncArrayTableModel createTableModel(int rowCount,
+                                                        int columnCount,
+                                                        @NotNull PyDataViewerPanel panel,
+                                                        @NotNull PyDebugValue debugValue,
+                                                        int slice);
+
   public abstract ColoredCellRenderer createCellRenderer(double minValue, double maxValue, @NotNull ArrayChunk arrayChunk);
 
   public abstract boolean isNumeric(String dtypeKind);

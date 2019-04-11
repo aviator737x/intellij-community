@@ -188,6 +188,17 @@ public class MultiProcessDebugger implements ProcessDebugger {
     return debugger(threadId).loadArrayItems(threadId, frameId, var, rowOffset, colOffset, rows, cols, format);
   }
 
+  public ArrayChunk loadArrayItems(String threadId,
+                                   String frameId,
+                                   PyDebugValue var,
+                                   int rowOffset,
+                                   int colOffset,
+                                   int rows,
+                                   int cols,
+                                   String format, int slice) throws PyDebuggerException {
+    return debugger(threadId).loadArrayItems(threadId, frameId, var, rowOffset, colOffset, rows, cols, format, slice);
+  }
+
   @Override
   public void loadReferrers(String threadId, String frameId, PyReferringObjectsValue var, PyDebugCallback<XValueChildrenList> callback) {
     debugger(threadId).loadReferrers(threadId, frameId, var, callback);

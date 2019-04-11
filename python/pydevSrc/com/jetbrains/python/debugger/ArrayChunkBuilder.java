@@ -20,6 +20,8 @@ import java.util.List;
 public class ArrayChunkBuilder {
   private PyDebugValue myValue;
   private String myPresentation;
+  private int myDimensions = 0;
+  private int mySlices = 0;
   private int myRows;
   private int myColumns;
   private String myMax;
@@ -84,6 +86,16 @@ public class ArrayChunkBuilder {
   }
 
   public ArrayChunk createArrayChunk() {
-    return new ArrayChunk(myValue, myPresentation, myRows, myColumns, myMax, myMin, myFormat, myType, myData, myRowLabels, myColHeaders);
+    return new ArrayChunk(myValue, myPresentation, myRows, myColumns, myMax, myMin, myFormat, myType, myData, myRowLabels, myColHeaders, mySlices, myDimensions);
+  }
+
+  public ArrayChunkBuilder setSlices(int slices) {
+    mySlices = slices;
+    return this;
+  }
+
+  public ArrayChunkBuilder setDimensions(int dimensions) {
+    myDimensions = dimensions;
+    return this;
   }
 }

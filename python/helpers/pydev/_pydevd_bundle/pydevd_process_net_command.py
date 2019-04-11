@@ -194,14 +194,14 @@ def process_net_command(py_db, cmd_id, seq, text):
                 # we received some command to get an array variable
                 # the text is: thread_id\tframe_id\tFRAME|GLOBAL\tname\ttemp\troffs\tcoffs\trows\tcols\tformat
                 try:
-                    roffset, coffset, rows, cols, format, thread_id, frame_id, scopeattrs  = text.split('\t', 7)
+                    roffset, coffset, rows, cols, format, slice, thread_id, frame_id, scopeattrs  = text.split('\t', 8)
 
                     if scopeattrs.find('\t') != -1:  # there are attributes beyond scope
                         scope, attrs = scopeattrs.split('\t', 1)
                     else:
                         scope, attrs = (scopeattrs, None)
 
-                    int_cmd = InternalGetArray(seq, roffset, coffset, rows, cols, format, thread_id, frame_id, scope, attrs)
+                    int_cmd = InternalGetArray(seq, roffset, coffset, rows, cols, format, slice, thread_id, frame_id, scope, attrs)
                     py_db.post_internal_command(int_cmd, thread_id)
 
                 except:

@@ -389,6 +389,7 @@ def evaluate_expression(thread_id, frame_id, expression, doExec):
     '''returns the result of the evaluated expression
     @param doExec: determines if we should do an exec or an eval
     '''
+
     frame = find_frame(thread_id, frame_id)
     if frame is None:
         return
@@ -402,7 +403,6 @@ def evaluate_expression(thread_id, frame_id, expression, doExec):
 
     try:
         expression = str(expression.replace('@LINE@', '\n'))
-
         if doExec:
             try:
                 # try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and
@@ -470,8 +470,8 @@ def change_attr_expression(thread_id, frame_id, attr, expression, dbg, value=SEN
 MAXIMUM_ARRAY_SIZE = 100
 
 
-def array_to_xml(array, name, roffset, coffset, rows, cols, format):
-    array, xml, r, c, f = array_to_meta_xml(array, name, format)
+def array_to_xml(array, name, roffset, coffset, rows, cols, format, slice):
+    array, xml, r, c, f, slices = array_to_meta_xml(array, name, format, slice)
     format = '%' + f
     if rows == -1 and cols == -1:
         rows = r
@@ -513,10 +513,14 @@ def array_to_xml(array, name, roffset, coffset, rows, cols, format):
     return xml
 
 
-def array_to_meta_xml(array, name, format):
+def array_to_meta_xml(array, name, format, slice):
     type = array.dtype.kind
-    slice = name
     l = len(array.shape)
+    dimentions = l
+    slices = len(array)
+    if l == 3:
+        array = array[int(slice)]
+        l = 2
 
     # initial load, compute slice
     if format == '%':
@@ -536,8 +540,9 @@ def array_to_meta_xml(array, name, format):
     l = len(array.shape)
     reslice = ""
     if l > 2:
-        raise Exception("%s has more than 2 dimensions." % slice)
+        raise Exception("%s has more than 3 dimensions." % slice)
     elif l == 1:
+
         # special case with 1D arrays arr[i, :] - row, but arr[:, i] - column with equal shape and ndim
         # http://stackoverflow.com/questions/16837946/numpy-a-2-rows-1-column-file-loadtxt-returns-1row-2-columns
         # explanation: http://stackoverflow.com/questions/15165170/how-do-i-maintain-row-column-orientation-of-vectors-in-numpy?rq=1
@@ -562,7 +567,6 @@ def array_to_meta_xml(array, name, format):
         if cols < array.shape[-1] or rows < array.shape[-2]:
             reslice = '[0:%s, 0:%s]' % (rows, cols)
         array = array[0:rows, 0:cols]
-
     # avoid slice duplication
     if not slice.endswith(reslice):
         slice += reslice
@@ -570,7 +574,7 @@ def array_to_meta_xml(array, name, format):
     bounds = (0, 0)
     if type in "biufc":
         bounds = (array.min(), array.max())
-    return array, slice_to_xml(slice, rows, cols, format, type, bounds), rows, cols, format
+    return array, slice_to_xml(dimentions, slices, slice, rows, cols, format, type, bounds), rows, cols, format, slices
 
 
 def array_default_format(type):
@@ -651,9 +655,9 @@ def array_data_to_xml(rows, cols, get_row):
     return xml
 
 
-def slice_to_xml(slice, rows, cols, format, type, bounds):
-    return '<array slice=\"%s\" rows=\"%s\" cols=\"%s\" format=\"%s\" type=\"%s\" max=\"%s\" min=\"%s\"/>' % \
-           (slice, rows, cols, format, type, bounds[1], bounds[0])
+def slice_to_xml(dimentions, slices, slice, rows, cols, format, type, bounds):
+    return '<array dimentions=\"%s\" slices=\"%s\" slice=\"%s\" rows=\"%s\" cols=\"%s\" format=\"%s\" type=\"%s\" max=\"%s\" min=\"%s\"/>' % \
+           (dimentions, slices, slice, rows, cols, format, type, bounds[1], bounds[0])
 
 
 def header_data_to_xml(rows, cols, dtypes, col_bounds, col_to_format, df, dim):
@@ -672,9 +676,11 @@ def header_data_to_xml(rows, cols, dtypes, col_bounds, col_to_format, df, dim):
 TYPE_TO_XML_CONVERTERS = {"ndarray": array_to_xml, "DataFrame": dataframe_to_xml, "Series": dataframe_to_xml}
 
 
-def table_like_struct_to_xml(array, name, roffset, coffset, rows, cols, format):
+def table_like_struct_to_xml(array, name, roffset, coffset, rows, cols, format, slice = 0):
     _, type_name, _ = get_type(array)
     if type_name in TYPE_TO_XML_CONVERTERS:
+        if type_name == "ndarray":
+            return "<xml>%s</xml>" % TYPE_TO_XML_CONVERTERS[type_name](array, name, roffset, coffset, rows, cols, format, slice)
         return "<xml>%s</xml>" % TYPE_TO_XML_CONVERTERS[type_name](array, name, roffset, coffset, rows, cols, format)
     else:
         raise VariableError("type %s not supported" % type_name)
