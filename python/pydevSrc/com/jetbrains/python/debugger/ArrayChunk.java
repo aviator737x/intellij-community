@@ -74,17 +74,7 @@ public class ArrayChunk {
                     String type,
                     @Nullable Object[][] data, List<String> labels, List<ColHeader> headers,
                     int slices, int dimensions) {
-    myValue = value;
-    mySlicePresentation = slicePresentation;
-    myRows = rows;
-    myColumns = columns;
-    myMax = max;
-    myMin = min;
-    myFormat = format;
-    myType = type;
-    myData = data;
-    myRowLabels = labels;
-    myColHeaders = headers;
+    this(value, slicePresentation, rows, columns, max, min, format, type, data, labels, headers);
     mySlices = slices;
     myDimensions = dimensions;
   }

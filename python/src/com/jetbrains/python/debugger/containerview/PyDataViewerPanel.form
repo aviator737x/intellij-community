@@ -75,19 +75,7 @@
           </component>
         </children>
       </grid>
-      <component id="57453" class="javax.swing.JLabel" binding="myLabel">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="60" height="16"/>
-            <maximum-size width="60" height="-1"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="true"/>
-          <text value="Label"/>
-        </properties>
-      </component>
-      <component id="76caa" class="javax.swing.JSpinner" binding="mySpinner1" default-binding="true">
+      <component id="76caa" class="javax.swing.JSpinner" binding="mySliceNumberSpinner" default-binding="true">
         <constraints>
           <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="3" use-parent-layout="false">
             <preferred-size width="81" height="30"/>

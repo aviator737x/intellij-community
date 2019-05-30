@@ -68,11 +68,10 @@ public class PyDataViewerPanel extends JPanel {
   private JBLabel myErrorLabel;
   @SuppressWarnings("unused") private JBScrollPane myScrollPane;
   private JButton myGetSliceButton;
-  private JSpinner mySpinner1;
-  private JLabel myLabel;
-  private JTextArea myTextArea1;
+  private JSpinner mySliceNumberSpinner;
   private boolean myColored;
   List<Listener> myListeners;
+  private PyDebugValue oldValue = null;
 
   public PyDataViewerPanel(@NotNull Project project, @NotNull PyFrameAccessor frameAccessor) {
     super(new BorderLayout());
@@ -88,7 +87,7 @@ public class PyDataViewerPanel extends JPanel {
     myGetSliceButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        updateModel((int) mySpinner1.getValue());
+        updateModel((int) mySliceNumberSpinner.getValue());
       }
     });
   }
@@ -138,7 +137,9 @@ public class PyDataViewerPanel extends JPanel {
   }
 
   private void updateDebugValue(@NotNull AsyncArrayTableModel model, int slice) {
-    PyDebugValue oldValue = model.getDebugValue();
+    if (this.oldValue == null) {
+      this.oldValue = model.getDebugValue();;
+    }
     if (!oldValue.isTemporary()) {
       return;
     }
@@ -217,10 +218,10 @@ public class PyDataViewerPanel extends JPanel {
         ArrayChunk arrayChunk = debugValue.getFrameAccessor().getArrayItems(debugValue, 0, 0, -1, -1, getFormat());
         if (arrayChunk.getDimensions() < 3) {
           myGetSliceButton.setVisible(false);
-          mySpinner1.setVisible(false);
+          mySliceNumberSpinner.setVisible(false);
         } else {
-          mySpinner1.setModel(new SpinnerNumberModel(0, 0, arrayChunk.getSlices() - 1, 1));
-          mySpinner1.setVisible(true);
+          mySliceNumberSpinner.setModel(new SpinnerNumberModel(0, 0, arrayChunk.getSlices() - 1, 1));
+          mySliceNumberSpinner.setVisible(true);
           myGetSliceButton.setVisible(true);
         }
         ApplicationManager.getApplication().invokeLater(() -> updateUI(arrayChunk, debugValue, strategy));
@@ -361,7 +362,8 @@ public class PyDataViewerPanel extends JPanel {
   public AsyncArrayTableModel getModel() {
     TableModel model = myTable.getModel();
     if (model instanceof AsyncArrayTableModel) {
-      return ((AsyncArrayTableModel)myTable.getModel());
+      AsyncArrayTableModel result = (AsyncArrayTableModel)myTable.getModel();
+      return result;
     }
     return null;
   }

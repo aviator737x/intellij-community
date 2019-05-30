@@ -18,7 +18,7 @@ public class GetArrayCommand extends GetFrameCommand {
   private final int myColumns;
   private final String myFormat;
   private ArrayChunk myChunk;
-  private final int mySlice;
+  private int mySlice;
 
   public GetArrayCommand(final RemoteDebugger debugger, final String threadId, final String frameId, PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format) {
     super(debugger, GET_ARRAY, threadId, frameId);
@@ -33,14 +33,7 @@ public class GetArrayCommand extends GetFrameCommand {
   }
 
   public GetArrayCommand(final RemoteDebugger debugger, final String threadId, final String frameId, PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format, int slice) {
-    super(debugger, GET_ARRAY, threadId, frameId);
-    myVariableName = GetVariableCommand.composeName(var);
-    myRowOffset = rowOffset;
-    myColOffset = colOffset;
-    myRows = rows;
-    myColumns = cols;
-    myFormat = format;
-    myParent = var;
+    this(debugger, threadId, frameId, var, rowOffset, colOffset, rows, cols, format);
     mySlice = slice;
   }
 

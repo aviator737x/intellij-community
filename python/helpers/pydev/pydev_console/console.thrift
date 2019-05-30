@@ -73,6 +73,8 @@ struct GetArrayResponse {
   8: ArrayHeaders headers,
 
   9: ArrayData data,
+
+  10: i32 slices,
 }
 
 typedef i32 LoadFullValueRequestSeq
@@ -163,7 +165,7 @@ service PythonConsoleBackendService {
 
   DebugValues evaluate(1: string expression),
 
-  GetArrayResponse getArray(1: string vars, 2: i32 rowOffset, 3: i32 colOffset, 4: i32 rows, 5: i32 cols, 6: string format)
+  GetArrayResponse getArray(1: string vars, 2: i32 rowOffset, 3: i32 colOffset, 4: i32 rows, 5: i32 cols, 6: string format, 7: i32 slice)
     throws (1: UnsupportedArrayTypeException unsupported),
 
   /**

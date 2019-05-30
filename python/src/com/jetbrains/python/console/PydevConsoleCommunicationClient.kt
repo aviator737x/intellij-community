@@ -33,9 +33,6 @@ import kotlin.concurrent.withLock
 class PydevConsoleCommunicationClient(project: Project,
                                       private val host: String, private val port: Int,
                                       private val _pythonConsoleProcess: Process) : PydevConsoleCommunication(project) {
-  override fun getArrayItems(value: PyDebugValue?, i: Int, i1: Int, i2: Int, i3: Int, format: String?, slice: Int): ArrayChunk {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
 
   private var server: TNettyServer? = null
 

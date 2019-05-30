@@ -516,15 +516,13 @@ def array_to_xml(array, name, roffset, coffset, rows, cols, format, slice):
 def array_to_meta_xml(array, name, format, slice):
     type = array.dtype.kind
     l = len(array.shape)
-    dimentions = l
     slices = len(array)
     if l == 3:
         array = array[int(slice)]
-        l = 2
 
     # initial load, compute slice
     if format == '%':
-        if l > 2:
+        if l > 3:
             slice += '[0]' * (l - 2)
             for r in range(l - 2):
                 array = array[0]
@@ -537,9 +535,8 @@ def array_to_meta_xml(array, name, format, slice):
     else:
         format = format.replace('%', '')
 
-    l = len(array.shape)
     reslice = ""
-    if l > 2:
+    if l > 3:
         raise Exception("%s has more than 3 dimensions." % slice)
     elif l == 1:
 
@@ -561,7 +558,7 @@ def array_to_meta_xml(array, name, format, slice):
             if rows < len(array):
                 reslice = '[0:%s]' % (rows)
             array = array[0:rows]
-    elif l == 2:
+    elif l == 2 or l == 3:
         rows = array.shape[-2]
         cols = array.shape[-1]
         if cols < array.shape[-1] or rows < array.shape[-2]:
@@ -574,7 +571,7 @@ def array_to_meta_xml(array, name, format, slice):
     bounds = (0, 0)
     if type in "biufc":
         bounds = (array.min(), array.max())
-    return array, slice_to_xml(dimentions, slices, slice, rows, cols, format, type, bounds), rows, cols, format, slices
+    return array, slice_to_xml(l, slices, slice, rows, cols, format, type, bounds), rows, cols, format, slices
 
 
 def array_default_format(type):
