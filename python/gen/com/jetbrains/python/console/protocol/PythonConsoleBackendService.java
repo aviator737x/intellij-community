@@ -84,6 +84,7 @@ public class PythonConsoleBackendService {
      */
     public void loadFullValue(int seq, java.util.List<java.lang.String> variables) throws org.apache.thrift.TException;
 
+    public GetArrayResponse getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, int slice) throws UnsupportedArrayTypeException, org.apache.thrift.TException;
   }
 
   public interface AsyncIface {
@@ -116,6 +117,7 @@ public class PythonConsoleBackendService {
 
     public void loadFullValue(int seq, java.util.List<java.lang.String> variables, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws org.apache.thrift.TException;
 
+    public void getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, int sice, org.apache.thrift.async.AsyncMethodCallback<GetArrayResponse> resultHandler) throws org.apache.thrift.TException;
   }
 
   public static class Client extends org.apache.thrift.TServiceClient implements Iface {
@@ -400,6 +402,12 @@ public class PythonConsoleBackendService {
       return recv_getArray();
     }
 
+    public GetArrayResponse getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, int slice) throws UnsupportedArrayTypeException, org.apache.thrift.TException
+    {
+      send_getArray(vars, rowOffset, colOffset, rows, cols, format, slice);
+      return recv_getArray();
+    }
+
     public void send_getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format) throws org.apache.thrift.TException
     {
       getArray_args args = new getArray_args();
@@ -409,6 +417,19 @@ public class PythonConsoleBackendService {
       args.setRows(rows);
       args.setCols(cols);
       args.setFormat(format);
+      sendBase("getArray", args);
+    }
+
+    public void send_getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, int slice) throws org.apache.thrift.TException
+    {
+      getArray_args args = new getArray_args();
+      args.setVars(vars);
+      args.setRowOffset(rowOffset);
+      args.setColOffset(colOffset);
+      args.setRows(rows);
+      args.setCols(cols);
+      args.setFormat(format);
+      args.setSlice(slice);
       sendBase("getArray", args);
     }
 
@@ -855,12 +876,20 @@ public class PythonConsoleBackendService {
       ___manager.call(method_call);
     }
 
+    public void getArray(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, int slice, org.apache.thrift.async.AsyncMethodCallback<GetArrayResponse> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getArray_call method_call = new getArray_call(vars, rowOffset, colOffset, rows, cols, slice, format, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
     public static class getArray_call extends org.apache.thrift.async.TAsyncMethodCall<GetArrayResponse> {
       private java.lang.String vars;
       private int rowOffset;
       private int colOffset;
       private int rows;
       private int cols;
+      private int slice;
       private java.lang.String format;
       public getArray_call(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, java.lang.String format, org.apache.thrift.async.AsyncMethodCallback<GetArrayResponse> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
@@ -870,6 +899,12 @@ public class PythonConsoleBackendService {
         this.rows = rows;
         this.cols = cols;
         this.format = format;
+        this.slice = 0;
+      }
+
+      public getArray_call(java.lang.String vars, int rowOffset, int colOffset, int rows, int cols, int slice, java.lang.String format, org.apache.thrift.async.AsyncMethodCallback<GetArrayResponse> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        this(vars, rowOffset, colOffset, rows, cols, format, resultHandler, client, protocolFactory, transport);
+        this.slice = slice;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -10451,6 +10486,7 @@ public class PythonConsoleBackendService {
     private static final org.apache.thrift.protocol.TField ROWS_FIELD_DESC = new org.apache.thrift.protocol.TField("rows", org.apache.thrift.protocol.TType.I32, (short)4);
     private static final org.apache.thrift.protocol.TField COLS_FIELD_DESC = new org.apache.thrift.protocol.TField("cols", org.apache.thrift.protocol.TType.I32, (short)5);
     private static final org.apache.thrift.protocol.TField FORMAT_FIELD_DESC = new org.apache.thrift.protocol.TField("format", org.apache.thrift.protocol.TType.STRING, (short)6);
+    private static final org.apache.thrift.protocol.TField SLICE_FIELD_DESC = new org.apache.thrift.protocol.TField("slice", org.apache.thrift.protocol.TType.I32, (short)7);
 
     private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY = new getArray_argsStandardSchemeFactory();
     private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY = new getArray_argsTupleSchemeFactory();
@@ -10460,6 +10496,7 @@ public class PythonConsoleBackendService {
     public int colOffset; // required
     public int rows; // required
     public int cols; // required
+    public int slice;
     public java.lang.String format; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -10469,7 +10506,8 @@ public class PythonConsoleBackendService {
       COL_OFFSET((short)3, "colOffset"),
       ROWS((short)4, "rows"),
       COLS((short)5, "cols"),
-      FORMAT((short)6, "format");
+      FORMAT((short)6, "format"),
+      SLICE((short)7, "slice");
 
       private static final java.util.Map<java.lang.String, _Fields> byName = new java.util.HashMap<java.lang.String, _Fields>();
 
@@ -10496,6 +10534,8 @@ public class PythonConsoleBackendService {
             return COLS;
           case 6: // FORMAT
             return FORMAT;
+          case 7:
+            return SLICE;
           default:
             return null;
         }
@@ -10540,6 +10580,7 @@ public class PythonConsoleBackendService {
     private static final int __COLOFFSET_ISSET_ID = 1;
     private static final int __ROWS_ISSET_ID = 2;
     private static final int __COLS_ISSET_ID = 3;
+    private static final int __SLICE_ISSET_ID = 4;
     private byte __isset_bitfield = 0;
     public static final java.util.Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
@@ -10556,6 +10597,8 @@ public class PythonConsoleBackendService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       tmpMap.put(_Fields.FORMAT, new org.apache.thrift.meta_data.FieldMetaData("format", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.SLICE, new org.apache.thrift.meta_data.FieldMetaData("slice", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getArray_args.class, metaDataMap);
     }
@@ -10584,6 +10627,29 @@ public class PythonConsoleBackendService {
       this.format = format;
     }
 
+    public getArray_args(
+      java.lang.String vars,
+      int rowOffset,
+      int colOffset,
+      int rows,
+      int cols,
+      int slice,
+      java.lang.String format)
+    {
+      this();
+      this.vars = vars;
+      this.rowOffset = rowOffset;
+      setRowOffsetIsSet(true);
+      this.colOffset = colOffset;
+      setColOffsetIsSet(true);
+      this.rows = rows;
+      setRowsIsSet(true);
+      this.cols = cols;
+      setColsIsSet(true);
+      this.format = format;
+      setSliceIsSet(true);
+    }
+
     /**
      * Performs a deep copy on <i>other</i>.
      */
@@ -10596,6 +10662,7 @@ public class PythonConsoleBackendService {
       this.colOffset = other.colOffset;
       this.rows = other.rows;
       this.cols = other.cols;
+      this.slice = other.slice;
       if (other.isSetFormat()) {
         this.format = other.format;
       }
@@ -10616,6 +10683,7 @@ public class PythonConsoleBackendService {
       this.rows = 0;
       setColsIsSet(false);
       this.cols = 0;
+      this.slice = 0;
       this.format = null;
     }
 
@@ -10759,6 +10827,29 @@ public class PythonConsoleBackendService {
       }
     }
 
+    public int getSlice() {
+      return this.slice;
+    }
+
+    public getArray_args setSlice(int slice) {
+      this.slice = slice;
+      setSliceIsSet(true);
+      return this;
+    }
+
+    public void unsetSlice() {
+      __isset_bitfield = org.apache.thrift.EncodingUtils.clearBit(__isset_bitfield, __SLICE_ISSET_ID);
+    }
+
+    /** Returns true if field rows is set (has been assigned a value) and false otherwise */
+    public boolean isSetSlice() {
+      return org.apache.thrift.EncodingUtils.testBit(__isset_bitfield, __SLICE_ISSET_ID);
+    }
+
+    public void setSliceIsSet(boolean value) {
+      __isset_bitfield = org.apache.thrift.EncodingUtils.setBit(__isset_bitfield, __SLICE_ISSET_ID, value);
+    }
+
     public void setFieldValue(_Fields field, java.lang.Object value) {
       switch (field) {
       case VARS:
@@ -10809,7 +10900,16 @@ public class PythonConsoleBackendService {
         }
         break;
 
+      case SLICE:
+        if (value == null) {
+          unsetSlice();
+        } else {
+          setSlice((java.lang.Integer)value);
+        }
+        break;
+
       }
+
     }
 
     public java.lang.Object getFieldValue(_Fields field) {
@@ -10831,6 +10931,9 @@ public class PythonConsoleBackendService {
 
       case FORMAT:
         return getFormat();
+
+      case SLICE:
+        return getSlice();
 
       }
       throw new java.lang.IllegalStateException();
@@ -10855,6 +10958,8 @@ public class PythonConsoleBackendService {
         return isSetCols();
       case FORMAT:
         return isSetFormat();
+      case SLICE:
+        return isSetSlice();
       }
       throw new java.lang.IllegalStateException();
     }
@@ -10928,6 +11033,15 @@ public class PythonConsoleBackendService {
           return false;
       }
 
+      boolean this_present_slice = true;
+      boolean that_present_slice = true;
+      if (this_present_slice || that_present_slice) {
+        if (!(this_present_slice && that_present_slice))
+          return false;
+        if (this.slice != that.slice)
+          return false;
+      }
+
       return true;
     }
 
@@ -10946,6 +11060,8 @@ public class PythonConsoleBackendService {
       hashCode = hashCode * 8191 + rows;
 
       hashCode = hashCode * 8191 + cols;
+
+      hashCode = hashCode * 8191 + slice;
 
       hashCode = hashCode * 8191 + ((isSetFormat()) ? 131071 : 524287);
       if (isSetFormat())
@@ -11012,6 +11128,16 @@ public class PythonConsoleBackendService {
           return lastComparison;
         }
       }
+      lastComparison = java.lang.Boolean.valueOf(isSetSlice()).compareTo(other.isSetSlice());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSlice()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.slice, other.slice);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       lastComparison = java.lang.Boolean.valueOf(isSetFormat()).compareTo(other.isSetFormat());
       if (lastComparison != 0) {
         return lastComparison;
@@ -11064,6 +11190,10 @@ public class PythonConsoleBackendService {
       if (!first) sb.append(", ");
       sb.append("cols:");
       sb.append(this.cols);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("slice:");
+      sb.append(this.slice);
       first = false;
       if (!first) sb.append(", ");
       sb.append("format:");
@@ -11166,6 +11296,14 @@ public class PythonConsoleBackendService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 7: //SLICE
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.slice = iprot.readI32();
+                struct.setSliceIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -11197,6 +11335,9 @@ public class PythonConsoleBackendService {
         oprot.writeFieldEnd();
         oprot.writeFieldBegin(COLS_FIELD_DESC);
         oprot.writeI32(struct.cols);
+        oprot.writeFieldEnd();
+        oprot.writeFieldBegin(SLICE_FIELD_DESC);
+        oprot.writeI32(struct.slice);
         oprot.writeFieldEnd();
         if (struct.format != null) {
           oprot.writeFieldBegin(FORMAT_FIELD_DESC);
@@ -11255,6 +11396,9 @@ public class PythonConsoleBackendService {
         if (struct.isSetCols()) {
           oprot.writeI32(struct.cols);
         }
+        if (struct.isSetSlice()) {
+          oprot.writeI32(struct.slice);
+        }
         if (struct.isSetFormat()) {
           oprot.writeString(struct.format);
         }
@@ -11287,6 +11431,10 @@ public class PythonConsoleBackendService {
         if (incoming.get(5)) {
           struct.format = iprot.readString();
           struct.setFormatIsSet(true);
+        }
+        if (incoming.get(6)) {
+          struct.slice = iprot.readI32();
+          struct.setSliceIsSet(true);
         }
       }
     }

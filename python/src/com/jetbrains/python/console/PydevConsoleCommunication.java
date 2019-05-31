@@ -600,7 +600,22 @@ public abstract class PydevConsoleCommunication extends AbstractConsoleCommunica
     throws PyDebuggerException {
     if (!isCommunicationClosed()) {
       try {
-        GetArrayResponse ret = getPythonConsoleBackendClient().getArray(var.getName(), rowOffset, colOffset, rows, cols, format);
+        GetArrayResponse ret = getPythonConsoleBackendClient().getArray(var.getName(), rowOffset, colOffset, rows, cols, format, 0);
+        return createArrayChunk(ret, this);
+      }
+      catch (Exception e) {
+        throw new PyDebuggerException("Evaluate in console failed", e);
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public ArrayChunk getArrayItems(PyDebugValue var, int rowOffset, int colOffset, int rows, int cols, String format, int slice)
+    throws PyDebuggerException {
+    if (!isCommunicationClosed()) {
+      try {
+        GetArrayResponse ret = getPythonConsoleBackendClient().getArray(var.getName(), rowOffset, colOffset, rows, cols, format, slice);
         return createArrayChunk(ret, this);
       }
       catch (Exception e) {

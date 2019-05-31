@@ -41,6 +41,10 @@ fun createArrayChunk(response: GetArrayResponse, frameAccessor: PyFrameAccessor)
   result.setMax(response.max)
   result.setMin(response.min)
   result.setValue(PyDebugValue(response.slice, null, null, null, false, false, false, false, frameAccessor))
+  result.setSlices(response.slices)
+  if (response.slices > 0) {
+    result.setDimensions(3)
+  }
 
   // `parseArrayHeaderData()`
 

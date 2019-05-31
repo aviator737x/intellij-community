@@ -370,15 +370,21 @@ def var_to_str(val, do_trim=True, evaluate_full_value=True):
 
 # from pydevd_vars.py
 
-def array_to_thrift_struct(array, name, roffset, coffset, rows, cols, format):
+def array_to_thrift_struct(array, name, roffset, coffset, rows, cols, format, slice):
     """
     """
 
-    array, array_chunk, r, c, f = array_to_meta_thrift_struct(array, name, format)
+    if len(array.shape) == 3:
+        slices = array.shape[0]
+    else:
+        slices = 0
+    array, array_chunk, r, c, f = array_to_meta_thrift_struct(array, name, format, slice, slices)
     format = '%' + f
     if rows == -1 and cols == -1:
         rows = r
         cols = c
+
+
 
     rows = min(rows, MAXIMUM_ARRAY_SIZE)
     cols = min(cols, MAXIMUM_ARRAY_SIZE)
@@ -413,11 +419,11 @@ def array_to_thrift_struct(array, name, roffset, coffset, rows, cols, format):
             value = array[row][col]
         return value
 
-    array_chunk.data = array_data_to_thrift_struct(rows, cols, lambda r: (get_value(r, c) for c in range(cols)))
+    array_chunk.data = array_data_to_thrift_struct(rows, cols, slices, lambda r: (get_value(r, c) for c in range(cols)))
     return array_chunk
 
 
-def array_to_meta_thrift_struct(array, name, format):
+def array_to_meta_thrift_struct(array, name, format, slice_num, slices):
     type = array.dtype.kind
     slice = name
     l = len(array.shape)
@@ -439,8 +445,8 @@ def array_to_meta_thrift_struct(array, name, format):
 
     l = len(array.shape)
     reslice = ""
-    if l > 2:
-        raise Exception("%s has more than 2 dimensions." % slice)
+    if l > 3:
+        raise Exception("%s has more than 3 dimensions." % slice)
     elif l == 1:
         # special case with 1D arrays arr[i, :] - row, but arr[:, i] - column with equal shape and ndim
         # http://stackoverflow.com/questions/16837946/numpy-a-2-rows-1-column-file-loadtxt-returns-1row-2-columns
@@ -466,6 +472,12 @@ def array_to_meta_thrift_struct(array, name, format):
         if cols < array.shape[-1] or rows < array.shape[-2]:
             reslice = '[0:%s, 0:%s]' % (rows, cols)
         array = array[0:rows, 0:cols]
+    elif l == 3:
+        rows = array[slice_num].shape[-2]
+        cols = array[slice_num].shape[-1]
+        if cols < array[slice_num].shape[-1] or rows < array[slice_num].shape[-2]:
+            reslice = '[0:%s, 0:%s, 0:%s]' % (rows, cols, slices)
+        array = array[slice_num][0:rows, 0:cols]
 
     # avoid slice duplication
     if not slice.endswith(reslice):
@@ -474,10 +486,12 @@ def array_to_meta_thrift_struct(array, name, format):
     bounds = (0, 0)
     if type in "biufc":
         bounds = (array.min(), array.max())
+    print(slices)
     array_chunk = GetArrayResponse()
     array_chunk.slice = slice
     array_chunk.rows = rows
     array_chunk.cols = cols
+    array_chunk.slices = slices
     array_chunk.format = format
     array_chunk.type = type
     array_chunk.max = "%s" % bounds[1]
@@ -549,10 +563,11 @@ def dataframe_to_thrift_struct(df, name, roffset, coffset, rows, cols, format):
     return array_chunk
 
 
-def array_data_to_thrift_struct(rows, cols, get_row):
+def array_data_to_thrift_struct(rows, cols, slices, get_row):
     array_data = ArrayData()
     array_data.rows = rows
     array_data.cols = cols
+    array_data.slices = slices
     # `ArrayData.data`
     data = []
     for row in range(rows):
@@ -592,13 +607,14 @@ TYPE_TO_THRIFT_STRUCT_CONVERTERS = {"ndarray": array_to_thrift_struct, "DataFram
                                     "Series": dataframe_to_thrift_struct}
 
 
-def table_like_struct_to_thrift_struct(array, name, roffset, coffset, rows, cols, format):
+def table_like_struct_to_thrift_struct(array, name, roffset, coffset, rows, cols, format, slice):
     """Returns `GetArrayResponse` structure for table-like structure
 
     The `array` might be either `numpy.ndarray`, `pandas.DataFrame` or `pandas.Series`.
     """
     _, type_name, _ = get_type(array)
     if type_name in TYPE_TO_THRIFT_STRUCT_CONVERTERS:
-        return TYPE_TO_THRIFT_STRUCT_CONVERTERS[type_name](array, name, roffset, coffset, rows, cols, format)
+        print (array)
+        return TYPE_TO_THRIFT_STRUCT_CONVERTERS[type_name](array, name, roffset, coffset, rows, cols, format, slice)
     else:
         raise UnsupportedArrayTypeException(type_name)

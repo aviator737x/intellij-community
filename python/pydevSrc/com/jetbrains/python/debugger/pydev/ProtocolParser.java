@@ -303,6 +303,8 @@ public class ProtocolParser {
       if (!"array".equals(reader.getNodeName())) {
         throw new PyDebuggerException("Expected <array> at first node, found " + reader.getNodeName());
       }
+      result.setDimensions(readInt(reader, "dimentions", null));
+      result.setSlices(readInt(reader, "slices", null));
       String slice = readString(reader, "slice", null);
       result.setSlicePresentation(slice);
       result.setRows(readInt(reader, "rows", null));

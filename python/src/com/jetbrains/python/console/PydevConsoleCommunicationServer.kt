@@ -12,6 +12,8 @@ import com.jetbrains.python.console.protocol.PythonConsoleFrontendService
 import com.jetbrains.python.console.transport.server.ServerClosedException
 import com.jetbrains.python.console.transport.server.TNettyServer
 import com.jetbrains.python.console.transport.server.TNettyServerTransport
+import com.jetbrains.python.debugger.ArrayChunk
+import com.jetbrains.python.debugger.PyDebugValue
 import com.jetbrains.python.debugger.PyDebugValueExecutionService
 import org.apache.thrift.protocol.TBinaryProtocol
 import org.apache.thrift.transport.TTransport
@@ -23,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 class PydevConsoleCommunicationServer(project: Project, port: Int) : PydevConsoleCommunication(project) {
+
   private val serverTransport: TNettyServerTransport
 
   /**

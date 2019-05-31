@@ -24,6 +24,7 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
   private static final org.apache.thrift.protocol.TField MIN_FIELD_DESC = new org.apache.thrift.protocol.TField("min", org.apache.thrift.protocol.TType.STRING, (short)7);
   private static final org.apache.thrift.protocol.TField HEADERS_FIELD_DESC = new org.apache.thrift.protocol.TField("headers", org.apache.thrift.protocol.TType.STRUCT, (short)8);
   private static final org.apache.thrift.protocol.TField DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("data", org.apache.thrift.protocol.TType.STRUCT, (short)9);
+  private static final org.apache.thrift.protocol.TField SLICES_FIELD_DESC = new org.apache.thrift.protocol.TField("slices", org.apache.thrift.protocol.TType.I32, (short)10);
 
   private static final org.apache.thrift.scheme.SchemeFactory STANDARD_SCHEME_FACTORY = new GetArrayResponseStandardSchemeFactory();
   private static final org.apache.thrift.scheme.SchemeFactory TUPLE_SCHEME_FACTORY = new GetArrayResponseTupleSchemeFactory();
@@ -37,6 +38,7 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
   public java.lang.String slice; // required
   public int rows; // required
   public int cols; // required
+  public int slices; //required
   public java.lang.String format; // required
   public java.lang.String type; // required
   /**
@@ -74,7 +76,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
      */
     MIN((short)7, "min"),
     HEADERS((short)8, "headers"),
-    DATA((short)9, "data");
+    DATA((short)9, "data"),
+    SLICES((short)10, "slices");
 
     private static final java.util.Map<java.lang.String, _Fields> byName = new java.util.HashMap<java.lang.String, _Fields>();
 
@@ -107,6 +110,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
           return HEADERS;
         case 9: // DATA
           return DATA;
+        case 10: // SLICES
+          return SLICES;
         default:
           return null;
       }
@@ -171,6 +176,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ArrayHeaders.class)));
     tmpMap.put(_Fields.DATA, new org.apache.thrift.meta_data.FieldMetaData("data", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ArrayData.class)));
+    tmpMap.put(_Fields.COLS, new org.apache.thrift.meta_data.FieldMetaData("slices", org.apache.thrift.TFieldRequirementType.DEFAULT,
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = java.util.Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(GetArrayResponse.class, metaDataMap);
   }
@@ -187,7 +194,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     java.lang.String max,
     java.lang.String min,
     ArrayHeaders headers,
-    ArrayData data)
+    ArrayData data,
+    int slices)
   {
     this();
     this.slice = slice;
@@ -201,6 +209,7 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     this.min = min;
     this.headers = headers;
     this.data = data;
+    this.slices = slices;
   }
 
   /**
@@ -231,6 +240,9 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     if (other.isSetData()) {
       this.data = new ArrayData(other.data);
     }
+    if (other.isSetSlices()) {
+      this.slices = other.slices;
+    }
   }
 
   public GetArrayResponse deepCopy() {
@@ -250,6 +262,7 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     this.min = null;
     this.headers = null;
     this.data = null;
+    this.slices = 0;
   }
 
   /**
@@ -492,6 +505,36 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     }
   }
 
+  public int getSlices() {
+    return this.slices;
+  }
+
+  /**
+   * The string representation of the array slice. It is constructed from the
+   * name of the array variable and the range.
+   *
+   * E.g. `array[0:100]`, `matrix[0:3, 0:3]`, `multidimensional[0][0][0:50]`.
+   */
+  public GetArrayResponse setSlices(java.lang.String slices) {
+    this.slice = slice;
+    return this;
+  }
+
+  public void unsetSlices() {
+    this.slices = 0;
+  }
+
+  /** Returns true if field slice is set (has been assigned a value) and false otherwise */
+  public boolean isSetSlices() {
+    return this.slices != 0;
+  }
+
+  public void setSlicesIsSet(boolean value) {
+    if (!value) {
+      this.slices = 0;
+    }
+  }
+
   public void setFieldValue(_Fields field, java.lang.Object value) {
     switch (field) {
     case SLICE:
@@ -566,6 +609,14 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
       }
       break;
 
+    case SLICES:
+      if (value == null) {
+        unsetCols();
+      } else {
+        setCols((java.lang.Integer)value);
+      }
+      break;
+
     }
   }
 
@@ -598,6 +649,9 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     case DATA:
       return getData();
 
+    case SLICES:
+      return getCols();
+
     }
     throw new java.lang.IllegalStateException();
   }
@@ -627,6 +681,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
       return isSetHeaders();
     case DATA:
       return isSetData();
+    case SLICES:
+      return isSetCols();
     }
     throw new java.lang.IllegalStateException();
   }
@@ -727,6 +783,15 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
         return false;
     }
 
+    boolean this_present_slices = true;
+    boolean that_present_slices = true;
+    if (this_present_slices || that_present_slices) {
+      if (!(this_present_slices && that_present_slices))
+        return false;
+      if (this.slices != that.slices)
+        return false;
+    }
+
     return true;
   }
 
@@ -765,6 +830,8 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     hashCode = hashCode * 8191 + ((isSetData()) ? 131071 : 524287);
     if (isSetData())
       hashCode = hashCode * 8191 + data.hashCode();
+
+    hashCode = hashCode * 8191 + slices;
 
     return hashCode;
   }
@@ -867,6 +934,16 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
         return lastComparison;
       }
     }
+    lastComparison = java.lang.Boolean.valueOf(isSetSlices()).compareTo(other.isSetSlices());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSlices()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.slices, other.slices);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -949,6 +1026,10 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
     } else {
       sb.append(this.data);
     }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("slices:");
+    sb.append(this.slices);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -1075,6 +1156,14 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 10: // SLICES
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.slices = iprot.readI32();
+              struct.setSlicesIsSet(true);
+            } else {
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1131,6 +1220,9 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
         struct.data.write(oprot);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(SLICES_FIELD_DESC);
+      oprot.writeI32(struct.slices);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1176,6 +1268,9 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
       if (struct.isSetData()) {
         optionals.set(8);
       }
+      if (struct.isSetSlices()) {
+        optionals.set(9);
+      }
       oprot.writeBitSet(optionals, 9);
       if (struct.isSetSlice()) {
         oprot.writeString(struct.slice);
@@ -1203,6 +1298,9 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
       }
       if (struct.isSetData()) {
         struct.data.write(oprot);
+      }
+      if (struct.isSetSlices()) {
+        oprot.writeI32(struct.slices);
       }
     }
 
@@ -1247,6 +1345,10 @@ public class GetArrayResponse implements org.apache.thrift.TBase<GetArrayRespons
         struct.data = new ArrayData();
         struct.data.read(iprot);
         struct.setDataIsSet(true);
+      }
+      if (incoming.get(9)) {
+        struct.slices = iprot.readI32();
+        struct.setRowsIsSet(true);
       }
     }
   }

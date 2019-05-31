@@ -43,6 +43,7 @@ public class PyFullValueEvaluator extends XFullValueEvaluator {
         if (value.getValue() == null) {
           throw new PyDebuggerException("Failed to Load Value");
         }
+        value.setTempName(this.myExpression);
         callback.evaluated(value.getValue());
         ApplicationManager.getApplication().invokeLater(() -> showCustomPopup(myDebugProcess, value));
       }

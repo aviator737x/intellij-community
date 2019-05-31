@@ -230,10 +230,10 @@ class BaseInterpreterInterface(BaseCodeExecutor):
 
         return debug_values
 
-    def getArray(self, attr, roffset, coffset, rows, cols, format):
+    def getArray(self, attr, roffset, coffset, rows, cols, format, slice):
         name = attr.split("\t")[-1]
         array = pydevd_vars.eval_in_context(name, self.get_namespace(), self.get_namespace())
-        return pydevd_thrift.table_like_struct_to_thrift_struct(array, name, roffset, coffset, rows, cols, format)
+        return pydevd_thrift.table_like_struct_to_thrift_struct(array, name, roffset, coffset, rows, cols, format, slice)
 
     def evaluate(self, expression):
         # returns `DebugValue` of evaluated expression

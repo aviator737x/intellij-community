@@ -192,6 +192,20 @@ public class RemoteDebugger implements ProcessDebugger {
     return command.getArray();
   }
 
+  @Override
+  public ArrayChunk loadArrayItems(String threadId,
+                                   String frameId,
+                                   PyDebugValue var,
+                                   int rowOffset,
+                                   int colOffset,
+                                   int rows,
+                                   int cols,
+                                   String format, int slice) throws PyDebuggerException {
+    final GetArrayCommand command = new GetArrayCommand(this, threadId, frameId, var, rowOffset, colOffset, rows, cols, format, slice);
+    command.execute();
+    return command.getArray();
+  }
+
 
   @Override
   public void loadReferrers(final String threadId,

@@ -1,7 +1,6 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="idea.default" />
-    <option name="myLocal" value="true" />
     <inspection_tool class="AbstractMethodCallInConstructor" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="AndroidDomInspection" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="AndroidElementNotAllowed" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -167,7 +166,6 @@
     <inspection_tool class="BusyWait" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="BvConfigDomInspection" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="BvConstraintMappingsInspection" enabled="false" level="ERROR" enabled_by_default="false" />
-    <inspection_tool class="CStyleArrayDeclaration" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CallerJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CastConflictsWithInstanceof" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CastToIncompatibleInterface" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -240,9 +238,6 @@
     </inspection_tool>
     <inspection_tool class="DuplicateBooleanBranch" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DuplicateCaseLabelJS" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="DuplicateCondition" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoreSideEffectConditions" value="true" />
-    </inspection_tool>
     <inspection_tool class="DuplicatedBlockNamesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="EmptyStatementBody" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_reportEmptyBlocks" value="true" />
@@ -501,6 +496,7 @@
       <option name="namePattern" value="[a-z][A-Za-z\d_]*" />
     </inspection_tool>
     <inspection_tool class="LoopStatementThatDoesntLoopJS" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="LossyEncoding" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MakoArgumentListInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MavenDuplicateDependenciesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MavenModelInspection" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -585,7 +581,6 @@
     <inspection_tool class="PointlessBooleanExpressionJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="PointlessNullCheck" enabled="true" level="WARNING" enabled_by_default="true">
       <scope name="android" level="WARNING" enabled="false" />
-      <option name="REPORT_CALLS" value="false" />
     </inspection_tool>
     <inspection_tool class="PrivatePropertyName" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <option name="namePattern" value="([A-Z_][A-Z_\d]*)|(_?[a-z][A-Za-z\d]*)" />
@@ -680,7 +675,7 @@
         <constraint name="Parameter" minCount="0" maxCount="2147483647" within="" contains="" />
       </searchConfiguration>
       <replaceConfiguration name="PsiManager.getInstance(psiElement.getProject())" text="com.intellij.psi.PsiManager.getInstance($psiElement$.getProject())" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="$psiElement$.getManager()">
-        <constraint name="psiElement" script="&quot;&quot;" nameOfExprType="com\.intellij\.psi\.PsiElement" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="psiElement" script="&quot;&quot;" nameOfExprType="com\.intellij\.psi\.PsiElement" expressionTypes="com.intellij.psi.PsiElement" exprTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="String.getBytes() is current locale-dependant, use String.getBytes(Charset) instead" text="$s$.getBytes()" recursive="false" caseInsensitive="true" type="JAVA">
         <constraint name="String" within="" contains="" />
@@ -716,7 +711,7 @@
       <replaceConfiguration name="new String(byte[]) is default locale dependent; use new String(byte[], Charset) instead" text="new String($b$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="true" shortenFQN="true" replacement="new String($b$, com.intellij.openapi.vfs.CharsetToolkit.UTF8_CHARSET)">
         <constraint name="s" within="" contains="" />
         <constraint name="type" within="" contains="" />
-        <constraint name="b" nameOfExprType="byte\[\]" exprTypeWithinHierarchy="true" within="" contains="" />
+        <constraint name="b" nameOfExprType="byte\[\]" expressionTypes="byte[]" exprTypeWithinHierarchy="true" within="" contains="" />
       </replaceConfiguration>
       <searchConfiguration name="Anonymous threads are discouraged; please supply name" text="new Thread()" recursive="true" caseInsensitive="true" type="JAVA">
         <constraint name="s" within="" contains="" />
@@ -806,11 +801,11 @@
         <constraint name="target" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="findAnnotation(name) != null -&gt; hasAnnotation(name)" created="1523461479091" text="$Instance$.findAnnotation($Parameter$) != null" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="false" shortenFQN="false" replacement="$Instance$.hasAnnotation($Parameter$)">
-        <constraint name="Instance" nameOfExprType="com\.intellij\.psi\.PsiAnnotationOwner" exprTypeWithinHierarchy="true" minCount="0" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="com\.intellij\.psi\.PsiAnnotationOwner" expressionTypes="com.intellij.psi.PsiAnnotationOwner" exprTypeWithinHierarchy="true" minCount="0" within="" contains="" />
         <constraint name="Parameter" minCount="0" maxCount="2147483647" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="findAnnotation(name) == null -&gt; !hasAnnotation(name)" created="1523461974706" text="$Instance$.findAnnotation($Parameter$) == null&#10;" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="false" shortenFQN="false" replacement="!$Instance$.hasAnnotation($Parameter$)">
-        <constraint name="Instance" nameOfExprType="com\.intellij\.psi\.PsiAnnotationOwner" exprTypeWithinHierarchy="true" minCount="0" within="" contains="" />
+        <constraint name="Instance" nameOfExprType="com\.intellij\.psi\.PsiAnnotationOwner" expressionTypes="com.intellij.psi.PsiAnnotationOwner" exprTypeWithinHierarchy="true" minCount="0" within="" contains="" />
         <constraint name="Parameter" minCount="0" maxCount="2147483647" within="" contains="" />
       </replaceConfiguration>
       <replaceConfiguration name="nio.Files.exists" text="Files.exists($path$)" recursive="false" caseInsensitive="true" type="JAVA" reformatAccordingToStyle="false" shortenFQN="false" replacement="$path$.toFile().exists()">
@@ -917,6 +912,7 @@
     </inspection_tool>
     <inspection_tool class="StringEquality" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="StringEqualsEmptyString" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="StringOperationCanBeSimplifiedMerged" />
     <inspection_tool class="StringToUpperWithoutLocale" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="Struts2ModelInspection" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="StrutsInspection" enabled="false" level="ERROR" enabled_by_default="false" />
